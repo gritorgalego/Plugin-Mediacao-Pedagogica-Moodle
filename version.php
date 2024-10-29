@@ -22,15 +22,15 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+ defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024102300;
-$plugin->requires = 2016052300;
-// $plugin->supported = TODO;   // Available as of Moodle 3.9.0 or later.
-// $plugin->incompatible = TODO;   // Available as of Moodle 3.9.0 or later.
-$plugin->component = 'block_mediacao_pedagogica';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'version 01 (Build 2024102300)';
+ $plugin->component = 'block_mediacaoPedagogica'; // Nome do plugin.
+ $plugin->version   = 2024102300;         // Data + número de versão (ano + mês + dia + versão).
+ $plugin->requires  = 2016052300;         // Versão mínima do Moodle.
+//  $plugin->maturity  = MATURITY_STABLE;    // Maturidade do plugin.
+//  $plugin->release   = '1.0.0';            // Número de versão do plugin.
+//  $plugin->dependencies = array();         
+ 
 
 // $plugin->dependencies = [
 //     'mod_forum' => 2022042100,

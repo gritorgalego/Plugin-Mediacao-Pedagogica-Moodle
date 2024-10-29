@@ -30,7 +30,7 @@ class block_pluginname extends block_base {
      * @return void
      */
     public function init() {
-        $this->title = get_string('pluginname', 'block_mediacao_pedagogica');
+        $this->title = get_string('pluginname', 'block_mediacaoPedagogica');
     }
 
     /**
@@ -47,11 +47,11 @@ class block_pluginname extends block_base {
 
         $this->content = new stdClass();
         $this->content->footer = '';
+        $this->content->text = 'Testando plugin mediação pedagógica.';
 
         // Add logic here to define your template data or any other content.
-        $data = ['YOUR DATA GOES HERE'];
-
-        $this->content->text = $OUTPUT->render_from_template('block_yourplugin/content', $data);
+        // $data = ['YOUR DATA GOES HERE'];
+        // $this->content->text = $OUTPUT->render_from_template('block_yourplugin/content', $data);
 
         return $this->content;
     }

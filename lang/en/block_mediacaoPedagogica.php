@@ -22,6 +22,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Mediação Pedagógica';
-$string['pluginname:addinstance'] = 'Add a new pluginname block';
+$string['pluginname'] = 'mediacaoPedagogica';
+$string['pluginname:addinstance'] = 'Add a new Mediacão Pedagógica block';
 $string['pluginname:myaddinstance'] = 'Add a new pluginname block to the My Moodle page';
