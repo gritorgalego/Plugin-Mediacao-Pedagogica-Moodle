@@ -25,3 +25,11 @@
 $string['pluginname'] = 'Mediacao Pedagogica';
 $string['pluginname:addinstance'] = 'Add a new Mediacão Pedagógica block';
 $string['pluginname:myaddinstance'] = 'Add a new pluginname block to the My Moodle page';
+
+
+$string['pluginname'] = 'Mediação Pedagógica';
+$string['nodatabases'] = 'Não existem bancos de dados disponíveis neste curso.';
+$string['selectdatabase'] = 'Selecione um banco de dados:';
+$string['choose'] = 'Escolher...';
+$string['nodatabasechosen'] = 'Nenhum banco de dados foi selecionado.';
+$string['norecords'] = 'Não há registros disponíveis neste banco de dados.';
