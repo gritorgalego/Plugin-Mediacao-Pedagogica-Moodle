@@ -123,26 +123,55 @@ class block_mediacaopedagogica extends block_base {
         return $DB->get_records_sql($sql, [$banco_id]);
     }
 
-    /**
-     * Renderiza a lista de atividades no layout especificado.
-     *
-     * @param array $atividades Lista de atividades.
-     * @return string HTML das atividades.
-     */
     private function render_atividades($atividades) {
-        $html = '<div class="atividade-lista">';
-        foreach ($atividades as $atividade) {
-            $html .= '
-                <div class="atividade-item">
-                    <h3>' . htmlspecialchars($atividade->atividade) . '</h3>
-                    <p><strong>Data:</strong> ' . htmlspecialchars($atividade->data) . '</p>
-                    <p><strong>Concluído:</strong> ' . htmlspecialchars($atividade->feito) . '</p>
-                </div>
-            ';
+        $template_path = __DIR__ . '/atividade-lista.html';
+    
+        if (!file_exists($template_path)) {
+            return '<p>Erro: Template não encontrado.</p>';
         }
+    
+        $template_content = file_get_contents($template_path);
+        $html = '<div class="plugin-mediacao">';
+    
+        foreach ($atividades as $atividade) {
+            // Conversão segura do campo `data`
+            $timestamp = is_numeric($atividade->data) ? (int)$atividade->data : strtotime($atividade->data);
+    
+            if (!$timestamp) {
+                $html .= '<p>Erro: Formato de data inválido.</p>';
+                continue;
+            }
+    
+            $data = (new DateTime())->setTimestamp($timestamp);
+            $hoje = new DateTime();
+            $status = '';
+    
+            // Determinar o status
+            if ($data < $hoje) {
+                $status = '<span class="atrasada">Atrasada</span>';
+            } else {
+                $dias = $hoje->diff($data)->days;
+                $status = "<span class='dias-restantes'>{$dias} Dias</span>";
+            }
+    
+            // Substituir placeholders no template
+            $item = str_replace(
+                ['{DATA}', '{STATUS}', '{DESCRICAO}', '{ID}'],
+                [
+                    $data->format('d/m/Y'),
+                    $status,
+                    htmlspecialchars($atividade->atividade),
+                    $atividade->recordid
+                ],
+                $template_content
+            );
+    
+            $html .= $item;
+        }
+    
         $html .= '</div>';
         return $html;
-    }
+    }    
 
     public function instance_allow_multiple() {
         // Permite múltiplas instâncias do bloco
