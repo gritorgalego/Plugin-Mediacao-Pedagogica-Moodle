@@ -1,11 +1,14 @@
 <?php
-class block_mediacaopedagogica extends block_base {
-    public function init() {
+class block_mediacaopedagogica extends block_base
+{
+    public function init()
+    {
         // Nome do bloco
         $this->title = get_string('pluginname', 'block_mediacaopedagogica');
     }
 
-    public function applicable_formats() {
+    public function applicable_formats()
+    {
         // Define onde o bloco pode ser usado
         return array(
             'course-view' => true, // Disponível na página do curso
@@ -13,8 +16,9 @@ class block_mediacaopedagogica extends block_base {
         );
     }
 
-    public function get_content() {
-        global $COURSE, $DB, $OUTPUT;
+    public function get_content()
+    {
+        global $COURSE, $DB, $OUTPUT, $PAGE;
 
         if ($this->content !== null) {
             return $this->content;
@@ -22,6 +26,8 @@ class block_mediacaopedagogica extends block_base {
 
         $this->content = new stdClass();
         $this->content->footer = '';
+
+        $PAGE->requires->css(new moodle_url('/blocks/mediacaopedagogica/style.css'));
 
         // Capturar banco de dados selecionado (se existir)
         $banco_id = optional_param('banco_id', 0, PARAM_INT);
@@ -56,7 +62,8 @@ class block_mediacaopedagogica extends block_base {
      * @param int $courseid ID do curso atual.
      * @return array Lista de bancos de dados.
      */
-    private function get_bancos_disponiveis($courseid) {
+    private function get_bancos_disponiveis($courseid)
+    {
         global $DB;
 
         // Buscar os bancos de dados (tabela mdl_data) do curso
@@ -70,7 +77,8 @@ class block_mediacaopedagogica extends block_base {
      * @param int $banco_id ID do banco selecionado.
      * @return string HTML do dropdown.
      */
-    private function render_dropdown($bancos, $banco_id) {
+    private function render_dropdown($bancos, $banco_id)
+    {
         $html = '<form method="post">';
         $html .= '<label for="banco_id">Selecione o Banco de Dados:</label>';
         $html .= '<select name="banco_id" id="banco_id" onchange="this.form.submit()">';
@@ -96,7 +104,8 @@ class block_mediacaopedagogica extends block_base {
      * @param int $banco_id ID do banco de dados.
      * @return array Lista de atividades.
      */
-    private function get_atividades($banco_id) {
+    private function get_atividades($banco_id)
+    {
         global $DB;
 
         // Consulta SQL para buscar as atividades do banco de dados
@@ -123,29 +132,30 @@ class block_mediacaopedagogica extends block_base {
         return $DB->get_records_sql($sql, [$banco_id]);
     }
 
-    private function render_atividades($atividades) {
+    private function render_atividades($atividades)
+    {
         $template_path = __DIR__ . '/atividade-lista.html';
-    
+
         if (!file_exists($template_path)) {
             return '<p>Erro: Template não encontrado.</p>';
         }
-    
+
         $template_content = file_get_contents($template_path);
         $html = '<div class="plugin-mediacao">';
-    
+
         foreach ($atividades as $atividade) {
             // Conversão segura do campo `data`
-            $timestamp = is_numeric($atividade->data) ? (int)$atividade->data : strtotime($atividade->data);
-    
+            $timestamp = is_numeric($atividade->data) ? (int) $atividade->data : strtotime($atividade->data);
+
             if (!$timestamp) {
                 $html .= '<p>Erro: Formato de data inválido.</p>';
                 continue;
             }
-    
+
             $data = (new DateTime())->setTimestamp($timestamp);
             $hoje = new DateTime();
             $status = '';
-    
+
             // Determinar o status
             if ($data < $hoje) {
                 $status = '<span class="atrasada">Atrasada</span>';
@@ -153,7 +163,7 @@ class block_mediacaopedagogica extends block_base {
                 $dias = $hoje->diff($data)->days;
                 $status = "<span class='dias-restantes'>{$dias} Dias</span>";
             }
-    
+
             // Substituir placeholders no template
             $item = str_replace(
                 ['{DATA}', '{STATUS}', '{DESCRICAO}', '{ID}'],
@@ -165,15 +175,16 @@ class block_mediacaopedagogica extends block_base {
                 ],
                 $template_content
             );
-    
+
             $html .= $item;
         }
-    
+
         $html .= '</div>';
         return $html;
-    }    
+    }
 
-    public function instance_allow_multiple() {
+    public function instance_allow_multiple()
+    {
         // Permite múltiplas instâncias do bloco
         return true;
     }

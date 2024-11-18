@@ -1,58 +1,106 @@
 .plugin-mediacao {
     font-family: Arial, sans-serif;
-    color: #fff;
-    background-color: #222;
+    color: #000;
+    /* Texto preto */
+    background-color: #fff;
+    /* Fundo branco */
     padding: 20px;
     border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    /* Largura máxima */
+    margin: 0 auto;
+    /* Centraliza o conteúdo */
 }
 
 .atividade-item {
-    border: 2px solid #fff;
+    border: 1px solid #ddd;
     border-radius: 10px;
     margin-bottom: 20px;
-    padding: 10px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    /* Fundo do bloco */
 }
 
 .cabecalho {
     display: flex;
     justify-content: space-between;
-    font-size: 1.2em;
+    align-items: center;
+    font-size: 1.1em;
     font-weight: bold;
 }
 
 .cabecalho .data {
-    color: #fff;
+    color: #000;
+    /* Texto preto */
 }
 
 .cabecalho .atrasada {
     color: orange;
+    /* Mantém cor laranja */
 }
 
 .cabecalho .dias-restantes {
     color: green;
+    /* Mantém cor verde */
 }
 
 .descricao {
     margin-top: 10px;
-    font-size: 1.1em;
+    font-size: 1em;
 }
 
 .acoes {
     margin-top: 15px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 10px;
 }
 
+input[type="radio"] {
+    margin: 0 5px;
+}
+
 .btn-finalizar {
-    background-color: #444;
+    background-color: #000;
+    /* Fundo preto */
     color: #fff;
-    border: 1px solid #fff;
+    /* Texto branco */
+    border: 1px solid #ddd;
     border-radius: 5px;
     padding: 5px 10px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .btn-finalizar:hover {
-    background-color: #555;
+    background-color: #333;
+    /* Fica mais escuro ao passar o mouse */
+}
+
+@media (max-width: 600px) {
+    .plugin-mediacao {
+        padding: 15px;
+    }
+
+    .atividade-item {
+        padding: 10px;
+    }
+
+    .cabecalho {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .acoes {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .btn-finalizar {
+        width: 100%;
+        /* Botão ocupa toda a largura no celular */
+        text-align: center;
+    }
 }
