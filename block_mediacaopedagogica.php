@@ -1,11 +1,14 @@
 <?php
-class block_mediacaopedagogica extends block_base {
-    public function init() {
+class block_mediacaopedagogica extends block_base
+{
+    public function init()
+    {
         // Nome do bloco
         $this->title = get_string('pluginname', 'block_mediacaopedagogica');
     }
 
-    public function applicable_formats() {
+    public function applicable_formats()
+    {
         // Define onde o bloco pode ser usado
         return array(
             'course-view' => true, // Disponível na página do curso
@@ -13,8 +16,9 @@ class block_mediacaopedagogica extends block_base {
         );
     }
 
-    public function get_content() {
-        global $COURSE, $DB, $OUTPUT;
+    public function get_content()
+    {
+        global $COURSE, $DB, $OUTPUT, $PAGE;
 
         if ($this->content !== null) {
             return $this->content;
@@ -22,6 +26,8 @@ class block_mediacaopedagogica extends block_base {
 
         $this->content = new stdClass();
         $this->content->footer = '';
+
+        $PAGE->requires->css(new moodle_url('/blocks/mediacaopedagogica/style.css'));
 
         // Capturar banco de dados selecionado (se existir)
         $banco_id = optional_param('banco_id', 0, PARAM_INT);
@@ -58,7 +64,8 @@ class block_mediacaopedagogica extends block_base {
      * @param int $courseid ID do curso atual.
      * @return array Lista de bancos de dados.
      */
-    private function get_bancos_disponiveis($courseid) {
+    private function get_bancos_disponiveis($courseid)
+    {
         global $DB;
 
         // Buscar os bancos de dados (tabela mdl_data) do curso
@@ -72,7 +79,8 @@ class block_mediacaopedagogica extends block_base {
      * @param int $banco_id ID do banco selecionado.
      * @return string HTML do dropdown.
      */
-    private function render_dropdown($bancos, $banco_id) {
+    private function render_dropdown($bancos, $banco_id)
+    {
         $html = '<form method="post">';
         $html .= '<label for="banco_id">Selecione o Banco de Dados:</label>';
         $html .= '<select name="banco_id" id="banco_id" onchange="this.form.submit()">';
@@ -92,7 +100,8 @@ class block_mediacaopedagogica extends block_base {
         return $html;
     }
 
-    private function get_atividades($banco_id) {
+    private function get_atividades($banco_id)
+    {
         global $DB;
     
         $sql = "
