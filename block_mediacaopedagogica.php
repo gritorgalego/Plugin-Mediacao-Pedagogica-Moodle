@@ -218,7 +218,7 @@ class block_mediacaopedagogica extends block_base
                             alert("Erro na solicitação: " + err.message);
                         });
                 } else {
-                    alert("Selecione a opção 'Sim' para finalizar a tarefa.");
+                    alert("Selecione a opção \'Sim\' para finalizar a tarefa.");
                 }
             });
         });
