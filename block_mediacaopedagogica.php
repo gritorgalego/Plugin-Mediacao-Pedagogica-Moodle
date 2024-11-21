@@ -198,13 +198,25 @@ class block_mediacaopedagogica extends block_base
         const radioSim = document.querySelector(`input[name="feito_${recordid}"][value="Sim"]`);
 
         if (radioSim && radioSim.checked) {
-            fetch("http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php", {
+            // Construir a URL dinamicamente usando M.cfg.wwwroot
+            const url = `${M.cfg.wwwroot}/blocks/mediacaopedagogica/finalizar_tarefa.php`;
+            console.log("URL usada para a requisição:", url); // Log para depuração
+
+            fetch(url, {
                 method: "POST", // Alterado de PATCH para POST
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ recordid }) // Envia o ID no corpo da solicitação
             })
-                .then(response => response.json()) // Converte a resposta para JSON
+                .then(response => {
+                    console.log("Status da resposta:", response.status); // Log do status HTTP
+                    if (!response.ok) {
+                        throw new Error(`Erro no servidor: ${response.statusText}`);
+                    }
+                    return response.json(); // Converte a resposta para JSON
+                })
                 .then(data => {
+                    console.log("Resposta do servidor:", data); // Log da resposta para depuração
+
                     if (data.success) {
                         alert("Tarefa finalizada com sucesso!");
                         location.reload(); // Recarrega a página
@@ -213,7 +225,7 @@ class block_mediacaopedagogica extends block_base
                     }
                 })
                 .catch(err => {
-                    console.error("Erro na solicitação:", err);
+                    console.error("Erro na solicitação:", err); // Log de erros no console
                     alert("Erro na solicitação: " + err.message);
                 });
         } else {
@@ -221,8 +233,6 @@ class block_mediacaopedagogica extends block_base
         }
     });
 });
-
-
 </script>
     ';
 
