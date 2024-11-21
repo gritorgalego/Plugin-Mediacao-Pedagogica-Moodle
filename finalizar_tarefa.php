@@ -5,39 +5,44 @@ require_once(__DIR__ . '/../../config.php');
 header('Content-Type: application/json');
 
 try {
-    // Obter os dados enviados via POST
-    $data = json_decode(file_get_contents('php://input'), true);
-
-    if (!isset($data['recordid']) || empty($data['recordid'])) {
-        throw new Exception('ID do registro não fornecido ou inválido.');
+    // Verifica o método HTTP usado na requisição
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Método HTTP não permitido. Utilize POST.');
     }
 
-    $recordid = intval($data['recordid']);
-    global $DB;
+    // Obtém o corpo da requisição
+    $input = json_decode(file_get_contents('php://input'), true);
 
-    // Log para verificar o recordid
-    error_log("Record ID recebido: " . $recordid);
+    // Verifica se o 'recordid' foi enviado no corpo da requisição
+    if (isset($input['recordid'])) {
+        $recordid = intval($input['recordid']); // Converte para inteiro
 
-    // Identificar o campo "Feito" no banco de dados
-    $field_feito_id = $DB->get_field('data_fields', 'id', ['name' => 'Feito']);
+        global $DB;
 
-    if (!$field_feito_id) {
-        throw new Exception('Campo "Feito" não encontrado.');
+        // Obtém o campo 'Feito' na tabela de dados
+        $field_feito_id = $DB->get_field('data_fields', 'id', ['name' => 'Feito']);
+        if (!$field_feito_id) {
+            throw new Exception('Campo "Feito" não encontrado.');
+        }
+
+        // Atualiza o registro no banco de dados
+        $result = $DB->execute(
+            "UPDATE {data_content} SET content = 'Sim' WHERE recordid = ? AND fieldid = ?",
+            [$recordid, $field_feito_id]
+        );
+
+        // Verifica se a atualização foi bem-sucedida
+        if (!$result) {
+            throw new Exception('Falha ao atualizar o registro no banco de dados.');
+        }
+
+        // Resposta de sucesso
+        echo json_encode(['success' => true, 'message' => 'Tarefa finalizada.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'ID da tarefa não enviado.']);
     }
-
-    // Atualizar o registro para "Sim"
-    $DB->execute("
-        UPDATE {data_content}
-        SET content = 'Sim'
-        WHERE recordid = ? AND fieldid = ?
-    ", [$recordid, $field_feito_id]);
-
-    // Log após a atualização
-    error_log("Registro atualizado com sucesso para recordid: " . $recordid);
-
-    echo json_encode(['success' => true]);
 } catch (Exception $e) {
-    // Log do erro
-    error_log("Erro ao finalizar tarefa: " . $e->getMessage());
+    // Log do erro e resposta de erro
+    error_log("Erro: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

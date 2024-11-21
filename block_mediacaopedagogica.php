@@ -103,7 +103,7 @@ class block_mediacaopedagogica extends block_base
     private function get_atividades($banco_id)
     {
         global $DB;
-    
+
         $sql = "
             SELECT 
                 dc1.recordid,
@@ -129,59 +129,60 @@ class block_mediacaopedagogica extends block_base
             ORDER BY 
                 data ASC
         ";
-    
+
         return $DB->get_records_sql($sql, [$banco_id]);
     }
-    
-  
-    private function render_atividades($atividades) {
-    $template_path = __DIR__ . '/atividade-lista.html';
 
-    if (!file_exists($template_path)) {
-        return '<p>Erro: Template não encontrado.</p>';
-    }
 
-    $template_content = file_get_contents($template_path);
-    $html = '<div class="plugin-mediacao">';
+    private function render_atividades($atividades)
+    {
+        $template_path = __DIR__ . '/atividade-lista.html';
 
-    foreach ($atividades as $atividade) {
-        // Verifica se o campo 'data' está presente e válido
-        if (empty($atividade->data)) {
-            $html .= '<p>Erro: Data ausente para a atividade: ' . htmlspecialchars($atividade->atividade ?? 'Atividade sem nome') . '</p>';
-            continue;
+        if (!file_exists($template_path)) {
+            return '<p>Erro: Template não encontrado.</p>';
         }
 
-        // Converte o campo 'data' para timestamp
-        $timestamp = is_numeric($atividade->data) ? (int)$atividade->data : strtotime($atividade->data);
+        $template_content = file_get_contents($template_path);
+        $html = '<div class="plugin-mediacao">';
 
-        if (!$timestamp || $timestamp <= 0) {
-            $html .= '<p>Erro: Formato de data inválido para a atividade: ' . htmlspecialchars($atividade->atividade ?? 'Atividade sem nome') . '</p>';
-            continue;
-        }
+        foreach ($atividades as $atividade) {
+            // Verifica se o campo 'data' está presente e válido
+            if (empty($atividade->data)) {
+                $html .= '<p>Erro: Data ausente para a atividade: ' . htmlspecialchars($atividade->atividade ?? 'Atividade sem nome') . '</p>';
+                continue;
+            }
 
-        $data = (new DateTime())->setTimestamp($timestamp);
-        $hoje = new DateTime();
-        $status = '';
+            // Converte o campo 'data' para timestamp
+            $timestamp = is_numeric($atividade->data) ? (int) $atividade->data : strtotime($atividade->data);
 
-        // Determinar o status da atividade
-        if ($data < $hoje) {
-            $status = '<span class="atrasada">Atrasada</span>';
-        } else {
-            $dias = $hoje->diff($data)->days;
-            $status = "<span class='dias-restantes'>{$dias} Dias</span>";
-        }
+            if (!$timestamp || $timestamp <= 0) {
+                $html .= '<p>Erro: Formato de data inválido para a atividade: ' . htmlspecialchars($atividade->atividade ?? 'Atividade sem nome') . '</p>';
+                continue;
+            }
 
-        // Substituir os placeholders no template
-        $item = str_replace(
-            ['{DATA}', '{STATUS}', '{DESCRICAO}', '{ID}'],
-            [
-                $data->format('d/m/Y'), // Formata a data corretamente
-                $status,
-                htmlspecialchars($atividade->atividade ?? 'Sem nome'),
-                htmlspecialchars($atividade->recordid ?? 'Sem ID')
-            ],
-            $template_content
-        );
+            $data = (new DateTime())->setTimestamp($timestamp);
+            $hoje = new DateTime();
+            $status = '';
+
+            // Determinar o status da atividade
+            if ($data < $hoje) {
+                $status = '<span class="atrasada">Atrasada</span>';
+            } else {
+                $dias = $hoje->diff($data)->days;
+                $status = "<span class='dias-restantes'>{$dias} Dias</span>";
+            }
+
+            // Substituir os placeholders no template
+            $item = str_replace(
+                ['{DATA}', '{STATUS}', '{DESCRICAO}', '{ID}'],
+                [
+                    $data->format('d/m/Y'), // Formata a data corretamente
+                    $status,
+                    htmlspecialchars($atividade->atividade ?? 'Sem nome'),
+                    htmlspecialchars($atividade->recordid ?? 'Sem ID')
+                ],
+                $template_content
+            );
 
             $html .= $item;
         }
@@ -190,41 +191,41 @@ class block_mediacaopedagogica extends block_base
 
         // Incluir o JavaScript para envio AJAX
         $html .= '
-        <script>
-            document.querySelectorAll(".btn-finalizar").forEach(button => {
-            button.addEventListener("click", function () {
-                const recordid = this.getAttribute("data-id");
-                const radioSim = document.querySelector(`input[name="feito_${recordid}"][value="Sim"]`);
+    <script>
+    document.querySelectorAll(".btn-finalizar").forEach(button => {
+    button.addEventListener("click", function () {
+        const recordid = this.getAttribute("data-id"); // Obtém o recordid associado ao botão
+        const radioSim = document.querySelector(`input[name="feito_${recordid}"][value="Sim"]`);
 
-                if (radioSim && radioSim.checked) {
-                    fetch("blocks/mediacaopedagogica/finalizar_tarefa.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ recordid })
-                    })
-                        .then(response => response.text()) // Mude para `text()` para capturar qualquer retorno
-                        .then(data => {
-                            console.log("Resposta do servidor:", data); // Log da resposta
-                            const json = JSON.parse(data); // Tenta converter para JSON
-                            if (json.success) {
-                                alert("Tarefa finalizada com sucesso!");
-                                location.reload(); // Recarrega a página para atualizar a lista
-                            } else {
-                                alert("Erro ao finalizar a tarefa: " + json.message);
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Erro na solicitação:", err);
-                            alert("Erro na solicitação: " + err.message);
-                        });
-                } else {
-                    alert("Selecione a opção \'Sim\' para finalizar a tarefa.");
-                }
-            });
-        });
-        </script>
-        ';
+        if (radioSim && radioSim.checked) {
+            fetch("http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php", {
+                method: "POST", // Alterado de PATCH para POST
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ recordid }) // Envia o ID no corpo da solicitação
+            })
+                .then(response => response.json()) // Converte a resposta para JSON
+                .then(data => {
+                    if (data.success) {
+                        alert("Tarefa finalizada com sucesso!");
+                        location.reload(); // Recarrega a página
+                    } else {
+                        alert("Erro ao finalizar a tarefa: " + data.message);
+                    }
+                })
+                .catch(err => {
+                    console.error("Erro na solicitação:", err);
+                    alert("Erro na solicitação: " + err.message);
+                });
+        } else {
+            alert("Selecione a opção \'Sim\' para finalizar a tarefa.");
+        }
+    });
+});
+
+
+</script>
+    ';
 
         return $html;
-    }     
+    }
 }
