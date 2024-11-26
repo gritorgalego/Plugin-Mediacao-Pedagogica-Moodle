@@ -109,7 +109,8 @@ class block_mediacaopedagogica extends block_base
                 dc1.recordid,
                 MAX(CASE WHEN df.name = 'Atividade' THEN dc1.content ELSE NULL END) AS atividade,
                 MAX(CASE WHEN df.name = 'Data' THEN dc1.content ELSE NULL END) AS data,
-                MAX(CASE WHEN df.name = 'Feito' THEN dc1.content ELSE NULL END) AS feito
+                MAX(CASE WHEN df.name = 'Feito' THEN dc1.content ELSE NULL END) AS feito,
+                MAX(CASE WHEN df.name = 'Feito' THEN dc1.id ELSE NULL END) AS contentid
             FROM 
                 {data_content} dc1
             JOIN 
@@ -179,7 +180,7 @@ class block_mediacaopedagogica extends block_base
                     $data->format('d/m/Y'), // Formata a data corretamente
                     $status,
                     htmlspecialchars($atividade->atividade ?? 'Sem nome'),
-                    htmlspecialchars($atividade->recordid ?? 'Sem ID')
+                    htmlspecialchars($atividade->contentid ?? 'Sem ID')
                 ],
                 $template_content
             );
@@ -191,51 +192,35 @@ class block_mediacaopedagogica extends block_base
 
         // Incluir o JavaScript para envio AJAX
         $html .= '
-    <script>
-    document.querySelectorAll(".btn-finalizar").forEach(button => {
-    button.addEventListener("click", function () {
-        const recordid = this.getAttribute("data-id"); // Obtém o recordid associado ao botão
-        const radioSim = document.querySelector(`input[name="feito_${recordid}"][value="Sim"]`);
+            <script>
+                document.querySelectorAll(\'.btn-finalizar\').forEach(button => {
+                button.addEventListener(\'click\', () => {
+                    const id = button.getAttribute(\'data-id\');
+                    const feito = document.querySelector(`input[name="feito_${id}"]:checked`).value;
 
-        if (radioSim && radioSim.checked) {
-            // Construir a URL dinamicamente usando M.cfg.wwwroot
-            const url = `${M.cfg.wwwroot}/blocks/mediacaopedagogica/finalizar_tarefa.php`;
-            console.log("URL usada para a requisição:", url); // Log para depuração
-
-            fetch(url, {
-                method: "POST", // Alterado de PATCH para POST
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ recordid }) // Envia o ID no corpo da solicitação
-            })
-                .then(response => {
-                    console.log("Status da resposta:", response.status); // Log do status HTTP
-                    if (!response.ok) {
-                        throw new Error(`Erro no servidor: ${response.statusText}`);
-                    }
-                    return response.json(); // Converte a resposta para JSON
-                })
-                .then(data => {
-                    console.log("Resposta do servidor:", data); // Log da resposta para depuração
-
-                    if (data.success) {
-                        alert("Tarefa finalizada com sucesso!");
-                        location.reload(); // Recarrega a página
-                    } else {
-                        alert("Erro ao finalizar a tarefa: " + data.message);
-                    }
-                })
-                .catch(err => {
-                    console.error("Erro na solicitação:", err); // Log de erros no console
-                    alert("Erro na solicitação: " + err.message);
+                    fetch(\'http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php\', {
+                        method: \'POST\',
+                        headers: {
+                            \'Content-Type\': \'application/json\'
+                        },
+                        body: JSON.stringify({id, feito})
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(\'Tarefa finalizada com sucesso!\');
+                            location.reload(); // Recarrega a página
+                        } else {
+                            alert(`Erro: ${data.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(\'Erro na requisição:\', error);
+                        alert(\'Erro na conexão com o servidor.\');
+                    });
                 });
-        } else {
-            alert("Selecione a opção \'Sim\' para finalizar a tarefa.");
-        }
-    });
-});
-</script>
-    ';
-
+            });
+            </script>';
         return $html;
     }
 }
