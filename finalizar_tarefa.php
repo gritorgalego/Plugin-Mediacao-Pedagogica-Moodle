@@ -4,7 +4,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-
 // Verifica o método da requisição
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'message' => 'Método inválido. Apenas POST é permitido.']);
@@ -21,7 +20,6 @@ try {
         exit;
     }
 
-    // Sanitiza os dados recebidos
     $id = intval($input['id']); // Converte o ID para inteiro
     $feito = filter_var($input['feito'], FILTER_SANITIZE_STRING);
 

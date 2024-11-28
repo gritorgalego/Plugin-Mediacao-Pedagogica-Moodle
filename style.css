@@ -1,16 +1,12 @@
 .plugin-mediacao {
     font-family: Arial, sans-serif;
     color: #000;
-    /* Texto preto */
     background-color: #fff;
-    /* Fundo branco */
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     max-width: 500px;
-    /* Largura máxima */
     margin: 0 auto;
-    /* Centraliza o conteúdo */
 }
 
 .atividade-item {
@@ -19,7 +15,6 @@
     margin-bottom: 20px;
     padding: 15px;
     background-color: #f9f9f9;
-    /* Fundo do bloco */
 }
 
 .cabecalho {
@@ -32,17 +27,14 @@
 
 .cabecalho .data {
     color: #000;
-    /* Texto preto */
 }
 
 .cabecalho .atrasada {
     color: orange;
-    /* Mantém cor laranja */
 }
 
 .cabecalho .dias-restantes {
     color: green;
-    /* Mantém cor verde */
 }
 
 .descricao {
@@ -64,9 +56,7 @@ input[type="radio"] {
 
 .btn-finalizar {
     background-color: #000;
-    /* Fundo preto */
     color: #fff;
-    /* Texto branco */
     border: 1px solid #ddd;
     border-radius: 5px;
     padding: 5px 10px;
@@ -76,7 +66,6 @@ input[type="radio"] {
 
 .btn-finalizar:hover {
     background-color: #333;
-    /* Fica mais escuro ao passar o mouse */
 }
 
 @media (max-width: 600px) {
@@ -100,7 +89,6 @@ input[type="radio"] {
 
     .btn-finalizar {
         width: 100%;
-        /* Botão ocupa toda a largura no celular */
         text-align: center;
     }
 }

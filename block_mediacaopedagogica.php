@@ -3,7 +3,6 @@ class block_mediacaopedagogica extends block_base
 {
     public function init()
     {
-        // Nome do bloco
         $this->title = get_string('pluginname', 'block_mediacaopedagogica');
     }
 
@@ -58,12 +57,7 @@ class block_mediacaopedagogica extends block_base
         return $this->content;
     }
 
-    /**
-     * Busca os bancos de dados disponíveis no curso atual.
-     *
-     * @param int $courseid ID do curso atual.
-     * @return array Lista de bancos de dados.
-     */
+     // Busca os bancos de dados disponíveis no curso atual.
     private function get_bancos_disponiveis($courseid)
     {
         global $DB;
@@ -72,13 +66,7 @@ class block_mediacaopedagogica extends block_base
         return $DB->get_records('data', ['course' => $courseid], 'name ASC', 'id, name');
     }
 
-    /**
-     * Renderiza o dropdown para selecionar o banco de dados.
-     *
-     * @param array $bancos Lista de bancos de dados.
-     * @param int $banco_id ID do banco selecionado.
-     * @return string HTML do dropdown.
-     */
+    // Renderiza o dropdown para selecionar o banco de dados.
     private function render_dropdown($bancos, $banco_id)
     {
         $html = '<form method="post">';
@@ -165,7 +153,7 @@ class block_mediacaopedagogica extends block_base
             $hoje = new DateTime();
             $status = '';
 
-            // Determinar o status da atividade
+            // Determina o status da atividade
             if ($data < $hoje) {
                 $status = '<span class="atrasada">Atrasada</span>';
             } else {
@@ -190,7 +178,7 @@ class block_mediacaopedagogica extends block_base
 
         $html .= '</div>';
 
-        // Incluir o JavaScript para envio AJAX
+        // JavaScript para envio AJAX
         $html .= '
             <script>
                 document.querySelectorAll(\'.btn-finalizar\').forEach(button => {
