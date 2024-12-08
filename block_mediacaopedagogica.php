@@ -28,14 +28,14 @@ class block_mediacaopedagogica extends block_base
 
         $PAGE->requires->css(new moodle_url('/blocks/mediacaopedagogica/style.css'));
 
-        // Capturar banco de dados selecionado (se existir)
+        // Capturar base de dados selecionado (se existir)
         $banco_id = optional_param('banco_id', 0, PARAM_INT);
 
-        // Buscar todos os bancos de dados do curso atual
+        // Buscar todos os base de dados do curso atual
         $bancos = $this->get_bancos_disponiveis($COURSE->id);
 
         if (empty($bancos)) {
-            $this->content->text = '<p>Não há bancos de dados disponíveis neste curso.</p>';
+            $this->content->text = '<p>Não há bases de dados disponíveis neste curso.</p>';
             return $this->content;
         }
 
@@ -48,7 +48,7 @@ class block_mediacaopedagogica extends block_base
             error_log(print_r($atividades, true));
 
             if (empty($atividades)) {
-                $this->content->text .= '<p>Não há atividades cadastradas ou vencidas neste banco de dados.</p>';
+                $this->content->text .= '<p>Não há atividades cadastradas ou vencidas nesta base de dados.</p>';
             } else {
                 $this->content->text .= $this->render_atividades($atividades);
             }
@@ -70,10 +70,10 @@ class block_mediacaopedagogica extends block_base
     private function render_dropdown($bancos, $banco_id)
     {
         $html = '<form method="post">';
-        $html .= '<label for="banco_id">Selecione o Banco de Dados:</label>';
+        $html .= '<label for="banco_id">Selecione a Base de Dados:</label>';
         $html .= '<select name="banco_id" id="banco_id" onchange="this.form.submit()">';
 
-        // Adicionar opção inicial
+        // Adicionar opção inicial 
         $html .= '<option value="0">-- Selecione --</option>';
 
         // Listar os bancos
