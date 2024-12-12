@@ -28,10 +28,10 @@ class block_mediacaopedagogica extends block_base
 
         $PAGE->requires->css(new moodle_url('/blocks/mediacaopedagogica/style.css'));
 
-        // Capturar base de dados selecionado (se existir)
+        // Capturar base de dados selecionada (se existir)
         $banco_id = optional_param('banco_id', 0, PARAM_INT);
 
-        // Buscar todos os base de dados do curso atual
+        // Buscar todas as bases de dados do curso atual
         $bancos = $this->get_bancos_disponiveis($COURSE->id);
 
         if (empty($bancos)) {
@@ -180,35 +180,55 @@ class block_mediacaopedagogica extends block_base
 
         // JavaScript para envio AJAX
         $html .= '
-            <script>
-                document.querySelectorAll(\'.btn-finalizar\').forEach(button => {
+        <script>
+        document.addEventListener(\'DOMContentLoaded\', () => {
+            document.querySelectorAll(\'.btn-finalizar\').forEach(button => {
                 button.addEventListener(\'click\', () => {
-                    const id = button.getAttribute(\'data-id\');
-                    const feito = document.querySelector(`input[name="feito_${id}"]:checked`).value;
+                    if (confirm(\'Tem certeza que deseja finalizar essa tarefa?\')) {
+                     const id = button.getAttribute(\'data-id\');
 
-                    fetch(\'http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php\', {
-                        method: \'POST\',
-                        headers: {
-                            \'Content-Type\': \'application/json\'
-                        },
-                        body: JSON.stringify({id, feito})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(\'Tarefa finalizada com sucesso!\');
-                            location.reload(); // Recarrega a página
-                        } else {
-                            alert(`Erro: ${data.message}`);
-                        }
-                    })
-                    .catch(error => {
-                        console.error(\'Erro na requisição:\', error);
-                        alert(\'Erro na conexão com o servidor.\');
-                    });
+                // Adicionar log para verificar o ID atribuído ao botão
+                console.log(`Finalizando tarefa com ID: ${id}`); // Log de depuração
+
+                fetch(\'http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php\', {
+                    method: \'POST\',
+                    headers: {
+                        \'Content-Type\': \'application/json\'
+                    },
+                    body: JSON.stringify({ id })
+                })
+                .then(response => {
+                    // Log para confirmar que a resposta foi recebida
+                    console.log(\'Resposta recebida:\', response);
+
+                    // Verificar se o conteúdo é JSON antes de fazer o parse
+                    if (response.headers.get(\'Content-Type\').includes(\'application/json\')) {
+                        return response.json();
+                    } else {
+                        throw new Error(\'Resposta não é JSON válida\');
+                    }
+                })
+                .then(data => {
+                    // Log dos dados retornados
+                    console.log(\'Dados recebidos:\', data);
+
+                    if (data.success) {
+                        alert(\'Tarefa finalizada com sucesso!\');
+                        location.reload(); // Recarrega a página
+                    } else {
+                        alert(`Erro: ${data.message}`);
+                    }
+                })
+                .catch(error => {
+                    // Melhorar log de erro para fornecer mais detalhes
+                    console.error(\'Erro na requisição ou no processamento:\', error);
+                    alert(\'Erro na conexão com o servidor ou resposta inválida. Verifique os logs.\');
                 });
-            });
-            </script>';
+            }
+        });
+    });
+});
+</script>';
         return $html;
     }
 }
