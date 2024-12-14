@@ -98,6 +98,7 @@ class block_mediacaopedagogica extends block_base
                 MAX(CASE WHEN df.name = 'Atividade' THEN dc1.content ELSE NULL END) AS atividade,
                 MAX(CASE WHEN df.name = 'Data' THEN dc1.content ELSE NULL END) AS data,
                 MAX(CASE WHEN df.name = 'Feito' THEN dc1.content ELSE NULL END) AS feito,
+                MAX(CASE WHEN df.name = 'Tipo de mensagem' THEN dc1.content ELSE NULL END) AS tipo_mensagem,
                 MAX(CASE WHEN df.name = 'Feito' THEN dc1.id ELSE NULL END) AS contentid
             FROM 
                 {data_content} dc1
@@ -163,11 +164,12 @@ class block_mediacaopedagogica extends block_base
 
             // Substituir os placeholders no template
             $item = str_replace(
-                ['{DATA}', '{STATUS}', '{DESCRICAO}', '{ID}'],
+                ['{DATA}', '{STATUS}', '{DESCRICAO}', '{TIPO_MENSAGEM}', '{ID}'],
                 [
                     $data->format('d/m/Y'), // Formata a data corretamente
                     $status,
                     htmlspecialchars($atividade->atividade ?? 'Sem nome'),
+                    htmlspecialchars($atividade->tipo_mensagem ?? 'Sem tipo de mensagem'), // Novo campo
                     htmlspecialchars($atividade->contentid ?? 'Sem ID')
                 ],
                 $template_content
