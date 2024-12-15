@@ -86,7 +86,7 @@ class block_mediacaopedagogica extends block_base
         if ($banco_id) {
             $url = $this->get_activity_url($banco_id, $COURSE->id);
             if ($url) {
-                $html .= "<p><a href='{$url}' target='_blank'>Ver toda a base de dados</a></p>";
+                $html .= "<p id='verBaseDeDados'><a href='{$url}' target='_blank'>Ver toda a base de dados</a></p>";
             } else {
                 $html .= '<p>Erro ao gerar o link para a base de dados.</p>';
             }
@@ -98,21 +98,21 @@ class block_mediacaopedagogica extends block_base
     private function get_activity_url($banco_id, $course_id)
     {
         global $DB;
-    
+
         // Obter todas as informações das atividades do curso
         $modinfo = get_fast_modinfo($course_id);
         if (!$modinfo) {
             return null;
         }
-    
+
         foreach ($modinfo->instances['data'] as $instance) {
-            if ($instance->instance == $banco_id) { 
+            if ($instance->instance == $banco_id) {
                 return new moodle_url($instance->url);
             }
-        }    
+        }
         return null;
     }
-    
+
 
     private function get_atividades($banco_id)
     {
@@ -192,14 +192,19 @@ class block_mediacaopedagogica extends block_base
                 $status = "<span class='dias-restantes'>{$dias} Dias</span>";
             }
 
+            $descricao_url = new moodle_url('/mod/data/view.php', [
+                'rid' => $atividade->recordid, // ID do registro
+                'filter' => 1
+            ]);
+
             // Substituir os placeholders no template
             $item = str_replace(
-                ['{DATA}', '{STATUS}', '{DESCRICAO}', '{TIPO_MENSAGEM}', '{ID}'],
+                ['{DATA}', '{STATUS}', '{TIPO_MENSAGEM}', '{DESCRICAO}', '{ID}'],
                 [
-                    $data->format('d/m/Y'), // Formata a data corretamente
+                    $data->format('d/m/Y'),
                     $status,
-                    htmlspecialchars($atividade->atividade ?? 'Sem nome'),
-                    htmlspecialchars($atividade->tipo_mensagem ?? 'Sem tipo de mensagem'), // Novo campo
+                    htmlspecialchars($atividade->tipo_mensagem ?? 'Sem tipo de mensagem'),
+                    "<a href='{$descricao_url}' target='_blank'>" . htmlspecialchars($atividade->atividade ?? 'Sem descrição') . "</a>",
                     htmlspecialchars($atividade->contentid ?? 'Sem ID')
                 ],
                 $template_content
@@ -213,54 +218,49 @@ class block_mediacaopedagogica extends block_base
         // JavaScript para envio AJAX
         $html .= '
         <script>
-        document.addEventListener(\'DOMContentLoaded\', () => {
-            document.querySelectorAll(\'.btn-finalizar\').forEach(button => {
-                button.addEventListener(\'click\', () => {
-                    if (confirm(\'Tem certeza que deseja finalizar essa tarefa?\')) {
-                     const id = button.getAttribute(\'data-id\');
+            document.addEventListener(\'DOMContentLoaded\', () => {
+                document.querySelectorAll(\'.btn-finalizar\').forEach(button => {
+                    button.addEventListener(\'click\', () => {
+                        if (confirm(\'Tem certeza que deseja finalizar essa tarefa?\')) {
+                        const id = button.getAttribute(\'data-id\');
 
-                // Adicionar log para verificar o ID atribuído ao botão
-                console.log(`Finalizando tarefa com ID: ${id}`); // Log de depuração
+                    console.log(`Finalizando tarefa com ID: ${id}`);
 
-                fetch(\'http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php\', {
-                    method: \'POST\',
-                    headers: {
-                        \'Content-Type\': \'application/json\'
-                    },
-                    body: JSON.stringify({ id })
-                })
-                .then(response => {
-                    // Log para confirmar que a resposta foi recebida
-                    console.log(\'Resposta recebida:\', response);
+                    fetch(\'http://localhost/blocks/mediacaopedagogica/finalizar_tarefa.php\', {
+                        method: \'POST\',
+                        headers: {
+                            \'Content-Type\': \'application/json\'
+                        },
+                        body: JSON.stringify({ id })
+                    })
+                    .then(response => {
+                        console.log(\'Resposta recebida:\', response);
 
-                    // Verificar se o conteúdo é JSON antes de fazer o parse
-                    if (response.headers.get(\'Content-Type\').includes(\'application/json\')) {
-                        return response.json();
-                    } else {
-                        throw new Error(\'Resposta não é JSON válida\');
-                    }
-                })
-                .then(data => {
-                    // Log dos dados retornados
-                    console.log(\'Dados recebidos:\', data);
+                        if (response.headers.get(\'Content-Type\').includes(\'application/json\')) {
+                            return response.json();
+                        } else {
+                            throw new Error(\'Resposta não é JSON válida\');
+                        }
+                    })
+                    .then(data => {
+                        console.log(\'Dados recebidos:\', data);
 
-                    if (data.success) {
-                        alert(\'Tarefa finalizada com sucesso!\');
-                        location.reload(); // Recarrega a página
-                    } else {
-                        alert(`Erro: ${data.message}`);
-                    }
-                })
-                .catch(error => {
-                    // Melhorar log de erro para fornecer mais detalhes
-                    console.error(\'Erro na requisição ou no processamento:\', error);
-                    alert(\'Erro na conexão com o servidor ou resposta inválida. Verifique os logs.\');
+                        if (data.success) {
+                            alert(\'Tarefa finalizada com sucesso!\');
+                            location.reload(); // Recarrega a página
+                        } else {
+                            alert(`Erro: ${data.message}`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(\'Erro na requisição ou no processamento:\', error);
+                        alert(\'Erro na conexão com o servidor ou resposta inválida. Verifique os logs.\');
+                    });
+                }
                 });
-            }
+            });
         });
-    });
-});
-</script>';
+        </script>';
         return $html;
     }
 }

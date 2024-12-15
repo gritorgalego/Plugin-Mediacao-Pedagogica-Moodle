@@ -42,16 +42,21 @@
     font-size: 1em;
 }
 
+.tipo-mensagem {
+    margin-top: 10px;
+    font-size: 1em;
+}
+
+#verBaseDeDados {
+    margin-top: 10px;
+}
+
 .acoes {
     margin-top: 15px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
-}
-
-input[type="radio"] {
-    margin: 0 5px;
 }
 
 .btn-finalizar {
