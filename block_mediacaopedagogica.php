@@ -17,7 +17,7 @@ class block_mediacaopedagogica extends block_base
 
     public function get_content()
     {
-        global $COURSE, $DB, $OUTPUT, $PAGE;
+        global $COURSE, $DB, $PAGE;
 
         if ($this->content !== null) {
             return $this->content;
@@ -28,10 +28,9 @@ class block_mediacaopedagogica extends block_base
 
         $PAGE->requires->css(new moodle_url('/blocks/mediacaopedagogica/style.css'));
 
-        // Capturar base de dados selecionada (se existir)
+        // Capturar o ID do banco selecionado
         $banco_id = optional_param('banco_id', 0, PARAM_INT);
 
-        // Buscar todas as bases de dados do curso atual
         $bancos = $this->get_bancos_disponiveis($COURSE->id);
 
         if (empty($bancos)) {
@@ -39,13 +38,10 @@ class block_mediacaopedagogica extends block_base
             return $this->content;
         }
 
-        // Renderizar dropdown para selecionar banco de dados
         $this->content->text = $this->render_dropdown($bancos, $banco_id);
 
-        // Caso um banco tenha sido selecionado, buscar as atividades
         if ($banco_id) {
             $atividades = $this->get_atividades($banco_id);
-            error_log(print_r($atividades, true));
 
             if (empty($atividades)) {
                 $this->content->text .= '<p>Não há atividades cadastradas ou vencidas nesta base de dados.</p>';
@@ -57,26 +53,27 @@ class block_mediacaopedagogica extends block_base
         return $this->content;
     }
 
-     // Busca os bancos de dados disponíveis no curso atual.
     private function get_bancos_disponiveis($courseid)
     {
         global $DB;
 
-        // Buscar os bancos de dados (tabela mdl_data) do curso
+        // Buscar as bases de dados (tabela mdl_data) do curso
         return $DB->get_records('data', ['course' => $courseid], 'name ASC', 'id, name');
     }
 
-    // Renderiza o dropdown para selecionar o banco de dados.
     private function render_dropdown($bancos, $banco_id)
     {
-        $html = '<form method="post">';
+        global $COURSE;
+
+        $html = '<form method="get">';
         $html .= '<label for="banco_id">Selecione a Base de Dados:</label>';
+
+        $html .= '<input type="hidden" name="id" value="' . $COURSE->id . '">';
+
         $html .= '<select name="banco_id" id="banco_id" onchange="this.form.submit()">';
 
-        // Adicionar opção inicial 
         $html .= '<option value="0">-- Selecione --</option>';
 
-        // Listar os bancos
         foreach ($bancos as $banco) {
             $selected = ($banco->id == $banco_id) ? 'selected' : '';
             $html .= "<option value='{$banco->id}' {$selected}>{$banco->name}</option>";
@@ -84,18 +81,46 @@ class block_mediacaopedagogica extends block_base
 
         $html .= '</select>';
         $html .= '</form>';
-        
-        // Adicionar o link no final
+
+        // Construir o link correto para a base de dados selecionada
         if ($banco_id) {
-            $base_url = new moodle_url('/mod/data/view.php', ['id' => $banco_id]);
-            $html .= "<p><a href='{$base_url}'>Ver todas as bases de dados</a></p>";
+            $url = $this->get_activity_url($banco_id, $COURSE->id);
+            if ($url) {
+                $html .= "<p><a href='{$url}' target='_blank'>Ver toda a base de dados</a></p>";
+            } else {
+                $html .= '<p>Erro ao gerar o link para a base de dados.</p>';
+            }
         }
+
         return $html;
     }
+
+    private function get_activity_url($banco_id, $course_id)
+    {
+        global $DB;
+    
+        // Obter todas as informações das atividades do curso
+        $modinfo = get_fast_modinfo($course_id);
+        if (!$modinfo) {
+            return null;
+        }
+    
+        foreach ($modinfo->instances['data'] as $instance) {
+            if ($instance->instance == $banco_id) { 
+                return new moodle_url($instance->url);
+            }
+        }    
+        return null;
+    }
+    
 
     private function get_atividades($banco_id)
     {
         global $DB;
+
+        if (!$banco_id) {
+            return [];
+        }
 
         $sql = "
             SELECT 
