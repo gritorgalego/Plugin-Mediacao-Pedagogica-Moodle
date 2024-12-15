@@ -84,7 +84,12 @@ class block_mediacaopedagogica extends block_base
 
         $html .= '</select>';
         $html .= '</form>';
-
+        
+        // Adicionar o link no final
+        if ($banco_id) {
+            $base_url = new moodle_url('/mod/data/view.php', ['id' => $banco_id]);
+            $html .= "<p><a href='{$base_url}'>Ver todas as bases de dados</a></p>";
+        }
         return $html;
     }
 
